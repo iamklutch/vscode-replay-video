@@ -43,9 +43,10 @@ const reservedWords = {
   do: "do",
   else: "else",
   enum: "enum",
+  except: "except",
   export: "export",
   extends: "extends",
-  false: "false",
+  False: "False",
   finally: "finally",
   for: "for",
   function: "function",
@@ -55,12 +56,11 @@ const reservedWords = {
   instanceof: "instanceof",
   new: "new",
   null: "null",
-  return: "return",
   super: "super",
   switch: "switch",
   this: "this",
   throw: "throw",
-  true: "true",
+  True: "True",
   try: "try",
   typeof: "typeof",
   var: "var",
@@ -69,6 +69,7 @@ const reservedWords = {
   with: "with",
   as: "as",
   implements: "implements",
+  int: "int",
   interface: "interface",
   let: "let",
   package: "package",
@@ -78,7 +79,7 @@ const reservedWords = {
   static: "static",
   yield: "yield",
   any: "any",
-  boolean: "boolean",
+  bool: "bool",
   constructor: "constructor",
   declare: "declare",
   get: "get",
@@ -86,11 +87,17 @@ const reservedWords = {
   require: "require",
   number: "number",
   set: "set",
-  string: "string",
+  str: "str",
   symbol: "symbol",
   type: "type",
   from: "from",
   of: "of",
+  def: "def",
+};
+
+const reservedWords2 = {
+  print: "print",
+  return: "return",
 };
 
 async function run() {
@@ -164,14 +171,26 @@ async function animate(sourceFile) {
   lines.push("--EOF");
 
   for (let line of lines) {
+    if (/""".*?"""/.test(line)) {
+      let color = colors.green;
+      const outWordLine = chalk[color](line);
+      for (let char of outWordLine) {
+        process.stdout.write(char);
+        await sleep(args.delay);
+      }
+    } else {
     const words = line.split(/\b/);
     for (let word of words) {
       let color;
 
       if (reservedWords[word]) {
         color = colors.blue;
+      } else if (reservedWords2[word]) {
+        color = colors.magenta;
       } else if (/[^\w]+/.test(word)) {
-        color = colors.red;
+	color = colors.red;
+      } else if (/#.*$/.test(word)) {
+        color = colors.green;
       } else {
         color = colors.white;
       }
@@ -181,6 +200,7 @@ async function animate(sourceFile) {
         process.stdout.write(char);
         await sleep(args.delay);
       }
+    }
     }
     console.log();
   }
